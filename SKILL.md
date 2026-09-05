@@ -56,11 +56,18 @@ time_control: scrub | segment-play | autonomous
 navigation: continuous | paged | none
 clip_continuity: chain | independent
 continuity: [<必须保持不变或连续的内容>]
+aspect_ratio: 16:9 | 9:16 | 1:1 | 21:9 | custom
 destination: <页面位置、最大显示尺寸和目标设备>
 ```
 
 判断规则：
 
+- `aspect_ratio` 规则：**由宿主容器和设备视口决定，严禁盲目默认 1:1**：
+  - **桌面全屏 / 沉浸式 Hero / 宽幅转场（Web Fullscreen / Landscape）**：必须强制使用原生 **`16:9`**（1280×720 / 1920×1080），杜绝 1:1 造成左右大黑边（Pillarbox）或被迫裁剪 40% 视野。
+  - **移动端全屏 / 短视频 / 竖屏故事（Mobile / Feed / Story）**：必须强制使用原生 **`9:16`**（720×1280 / 1080×1920）。
+  - **局部微交互 / 头像 / 徽章 / 独立方形视窗（Component / Card / Avatar）**：适用 **`1:1`**（1024×1024）。
+  - **宽银幕全景叙事（Cinematic Scope）**：适用 **`21:9`**。
+  - **全链路比例锁定**：Contract 中确定的 `aspect_ratio` 必须全链路向下透传至 Brief、关键帧生成尺寸（`image_job.py --size`）、视频模型宽高比推断（`video_job.py`）及编译导出；各环节不得脱节变形。
 - `scrub`：输入值与时间轴位置持续对应，输入停止时画面停在当前位置。
 - `segment-play`：输入选择下一状态，片段随后按时间播放；反向输入应从当前画面撤回，不得换源硬切。
 - `autonomous`：动画由时间推进，交互只负责开始、暂停或切换状态。
@@ -93,6 +100,8 @@ scene_continuity: <仅背景属于视频时填写>
 frame_policy: native | interpolate
 target_fps: <由源素材和运行时需求决定>
 quality_target: <分辨率、DPR 和文件预算>
+aspect_ratio: 16:9 | 9:16 | 1:1 | 21:9 | custom
+pixel_dimensions: <宽x高，由比例与DPR派生>
 reduced_motion: <静态替代状态>
 ```
 
@@ -106,7 +115,7 @@ reduced_motion: <静态替代状态>
 
 1. 有角色或需要身份一致时，先写 Identity Bible。
 2. 生成并验收 `K0…Kn`；每段只承担一个主要语义变化，片段 `i` 使用 `Ki → Ki+1`。
-3. 关键帧至少覆盖最大 CSS 尺寸乘目标 DPR，按最终裁切验收。
+3. 关键帧生成时必须严格按照 `aspect_ratio` 传入对应尺寸（如 16:9 传 `1792x1024`，9:16 传 `1024x1792`，1:1 传 `1024x1024`），确保从源头获得原生构图。至少覆盖最大 CSS 尺寸乘目标 DPR，按最终裁切验收。
 4. `background_owner: page` 时，使用 `$imagegen` 直接生成真实 Alpha PNG；不得先生成色底再反向抠图。视频模型需要色键输入时，再由 `composite_alpha_keyframe.py` 从透明源合成副本。
 5. 提示词、首尾帧模式和提交方式见 [references/prompting.md](references/prompting.md)（严格区分时钟注视与展台自转；一镜到底按范式提供锚点约束）。已有视频或序列帧时跳过生成，保留原始素材并从分析开始。
 
