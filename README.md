@@ -2,7 +2,7 @@
   <img src="./assets/readme/hero.svg" width="100%" alt="Oil Motion 把 AI 生成的连续动作接入网页交互">
 </p>
 
-**English**: [README.en.md](./README.en.md) · **中文**: README.md
+设计并实现随滚动、拖动、指针或状态变化响应的网页动画，覆盖素材、时间轴和运行时。
 
 Oil Motion 是一个 Agent 通用的交互动画 Skill。它负责设计动作、生成连续画面、整理动画资源，并把最终效果接入页面滚动、鼠标、拖动、触摸或设备方向。
 
@@ -150,7 +150,7 @@ Agent 会先运行预算脚本并直接采用最合适的一种主方案，不�
 
 ## 第一次生成动画
 
-第一次需要生成动画时，Agent 会引导配置所需的 API Key。密钥只保存在本机，之后会自动读取，不需要重复输入。
+第一次需要生成动画时，Agent 会引导配置所需的 API Key。密钥通过随附本机配置页存入系统凭据库，普通配置只保留引用。需安装 `scripts/requirements.txt` 中的 keyring 依赖；后端不可用时不会降级保存明文。也可复用运行环境中的凭据，不要发到聊天。
 
 ## 技术资料
 
@@ -159,3 +159,31 @@ Agent 会先运行预算脚本并直接采用最合适的一种主方案，不�
 ## License
 
 [MIT](./LICENSE)
+
+## 配置、依赖与使用边界
+
+需要 Python、FFmpeg 与所选生成服务；系统凭据需要 scripts/requirements.txt 中的 keyring。先复用运行环境凭据，新增配置不写明文 Key。
+
+生成素材会发送给所选供应商；处理结果需核对帧、尺寸、循环和资源预算，单次生成不代表全部验收通过。
+
+使用示例：
+
+```text
+用 oil-motion 实现随指针变化的角色方向动画。
+```
+
+## GitHub 安装
+
+把 [仓库地址](https://github.com/oil-oil/oil-motion) 交给 Agent，要求按 README 安装；也可运行：
+
+```bash
+npx skills add oil-oil/oil-motion
+```
+
+安装后由宿主重新加载 Skill。
+
+## API Key 配置页面
+
+首次使用外部服务时，可以在本机配置页亲自填写 Key；已有配置会复用，密钥存入系统凭据库。只为实际使用的外部服务配置；纯本地处理不需要 Key。页面需要 Node.js 22.18+ 与可用的系统凭据服务，业务运行仍使用原依赖。
+
+安装、状态检查、打开页面和带凭据运行的完整入口见[配置说明](references/api-key-setup.md)。页面保存与业务读取已经接通；不把 Key 发进聊天，也不自动迁移旧文件。
