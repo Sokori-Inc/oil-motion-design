@@ -46,6 +46,8 @@ node "$OIL_MOTION/scripts/credential-ui/src/profile.ts" setup default
 
 用户只有模糊目标时，先读 [references/concepts.md](references/concepts.md)，给出最多三个真正不同的方向（含旋转物理分型与一镜到底范式）；要求已经明确时直接写 Concept Contract。
 
+需要外部案例启发时，按表达目的选读 [references/motion-patterns.md](references/motion-patterns.md) 中的对应模式；先区分素材语义变化、容器编排和 UI 状态，再决定哪些部分进入生成流程。
+
 ```yaml
 subject_count: <number>
 subjects:
